@@ -51,7 +51,7 @@ function SetupState(mbt, option, setupCompletedCallback, setupProgressCallback) 
     };
 
     // complete check.
-    if (checkCompleted()) {
+    if (!completed && checkCompleted()) {
       if(typeof setupCompletedCallback === "function"){
         setupCompletedCallback(leftLimit,rightLimit);
         completed = true;

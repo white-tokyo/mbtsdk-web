@@ -101,6 +101,7 @@
         antialias: true
     });
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor("#fff")
 
     // Append the canvas element created by the renderer to document body element.
     document.body.appendChild(renderer.domElement);
@@ -163,7 +164,7 @@
 
 
     //add light.
-    var light = new THREE.DirectionalLight(0x0000ff, 1.6);
+    var light = new THREE.DirectionalLight(0xffffff, 1.6);
     light.position.set(0, 100, 30);
     scene.add(light);
     // var light1 = new THREE.AmbientLight(0xffffff);
@@ -176,32 +177,23 @@
         // called back when setup has completed.
         console.log("setup finishd!");
         showText("complete!")
-    },() => {
-      //
-      const ms = new Date().getMilliseconds();
-      showText("Progress:" + ms);
+    }, () => {
+        //
+        const ms = new Date().getMilliseconds();
+        showText("Progress:" + ms);
     });
 
     // register event handlers.
-    mbt.addListener("test",(arg)=>{
-      const ms = new Date().getMilliseconds();
-      showText("test:" + arg);
-    })
-    mbt.addListener("Tap", () => {
+    mbt.addListener("tap", () => {
         console.log("tap!");
         showText("Tap");
-        const targetPos = camera.target.position;
-        const cameraPos = camera.position;
-        const vector = targetPos.sub(cameraPos);
 
-        // マウスベクトル
-        //  var vector = new THREE.Vector3( mouse.x, mouse.y ,1);
-
-        // vector はスクリーン座標系なので, オブジェクトの座標系に変換
-        //  projector.unprojectVector( vector, camera );
+        const vLocal =new THREE.Vector3(0,0,-1);
+        const vWorld = vLocal.applyMatrix4(camera.matrixWorld);
+        const dir = vWorld.sub(camera.position).normalize(); // camera direction
 
         // 始点, 向きベクトルを渡してレイを作成
-        var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+        var ray = new THREE.Raycaster(camera.position, dir);
 
         // クリック判定
         var obj = ray.intersectObjects([cube]);
@@ -211,24 +203,36 @@
 
             console.log("click!!")
             showText("Hit!")
-
+            const color = cube.material.color
+            cube.material.color.setRGB(0, 1, 1);
+            window.setTimeout(()=>{
+              cube.material.color.setRGB(color.r, color.g, color.b);
+            },1000)
         }
     });
-    mbt.addListener("DoubleTap",()=>{
-      showText("doubletap")
-    })
-    // mbt.onDoubleTap((x, y) => {
-    //     console.log("double tap x: " + x + " ,y: " + y);
+    mbt.addListener("doubletap", () => {
+            showText("doubletap")
+        })
+    mbt.addListener("swipe",(speed,direction)=>{
+      showText("swipe! speed: "+speed+", dir: "+direction)
+    });
+    mbt.addListener("scrollBegan",()=>{
+      showText("scBegan")
+    });
+    mbt.addListener("scroll",(delta)=>{
+      // showText("scroll delta: "+ delta);
+    });
+    mbt.addListener("scrollEnd",()=>{
+      showText("scEnded")
+    });
+    // mbt.addListener("",()=>{
     //
     // });
-    // mbt.onSwipe((speed, direction) => {
-    //     console.log("swipe");
+    // mbt.addListener("",()=>{
+    //
     // });
-    // mbt.onScroll((radian) => {
-    //     console.log("scroll rad: " + radian);
-    // });
-    // mbt.onScrollFinish(() => {
-    //     console.log("scroll finish");
+    // mbt.addListener("",()=>{
+    //
     // });
 
 

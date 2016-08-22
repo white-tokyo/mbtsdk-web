@@ -4,6 +4,12 @@ const AngleBlock ={
   LowerRight:3,
   LowerLeft:2
 }
+const SwipeDirection= {
+	Right:0,
+	Left:1,
+	Up:2,
+	Down:3
+}
 function checkAngleBlock(angle){
   if (0 <= angle && angle < 90) {
     return AngleBlock.UpperRight;
@@ -16,14 +22,11 @@ function checkAngleBlock(angle){
 }
 
 function Swipe(startAnglePosition,endAnglePosition,timeDuration){
-  const startAnglePosition = startAnglePosition;
-	const endAnglePosition = endAnglePosition;
-	const timeDuration = timeDuration;
 
   this.getSpeed=function(){
-    return Math.abs(endAnglePosition - startAnglePosition) / timeDuration;
+    return Math.abs(endAnglePosition.sub(startAnglePosition).range) / timeDuration;
   }
-  this.getDuration = function(){
+  this.getDirection = function(){
     const s = checkAngleBlock (startAnglePosition);
     const e = checkAngleBlock (endAnglePosition);
     switch (s) {

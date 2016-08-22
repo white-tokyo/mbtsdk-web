@@ -2,10 +2,8 @@
 
 import SetupState from "./SetupState";
 import DetectState from "./DetectState";
-import Angle from "./Angle"
 
 function MBT(option,target){
-  this.eventNames = {Tap:"Tap",DoubleTap:"DoubleTap"}
   this.option = option;
   this.target = target;
 
@@ -52,8 +50,7 @@ function MBT(option,target){
       console.log("completeCallback");
       this.leftLimit = leftLimit;
       this.rightLimit = rightLimit;
-      // _state = new DetectState(this,{},invoke);
-      // invoke("setupCompleted",[]);
+      _state = new DetectState(this,{},invoke);
       doneCallback();
     };
     _state = new SetupState(this,{},completeCallback,progressCallback);
@@ -68,14 +65,15 @@ function MBT(option,target){
   }
 
   //detection click event
+  var tapFlag = false;
   this.target.addEventListener("touchstart", (e)=>{
     // var x = e.pageX ;
     var x= e.changedTouches[0].pageX
-    // console.log("mousedown");
-    // invoke("test",["mousedown"]);
+    tapFlag=true;
     _state.mousedown(x)
   });
   this.target.addEventListener("mousedown", (e)=>{
+    tapFlag=true;
     var x= e.pageX
     _state.mousedown(x)
   });
@@ -84,17 +82,25 @@ function MBT(option,target){
     // console.log("mouseup");
       // invoke("test",["mouseup"]);
     _state.mouseup(e.changedTouches[0].pageX);
+    tapFlag=false;
   });
   this.target.addEventListener("mouseup", (e)=>{
+    tapFlag=false;
     _state.mouseup(e.pageX);
   });
 
   this.target.addEventListener("touchmove", (e)=>{
+    if(!tapFlag){
+      return;
+    }
     var x= e.changedTouches[0].pageX
       // invoke("test",["mousemove"]);
     _state.mousemove(x)
   });
   this.target.addEventListener("mousemove", (e)=>{
+    if(!tapFlag){
+      return;
+    }
     var x= e.pageX
       // invoke("test",["mousemove"]);
     _state.mousemove(x)
