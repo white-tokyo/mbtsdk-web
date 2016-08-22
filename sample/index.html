@@ -95,17 +95,15 @@
 <script src="index.js"></script>
 
 <script>
-    // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
-    // Only enable it if you actually need to.
+
+    // setup Scene using three.js
     var renderer = new THREE.WebGLRenderer({
         antialias: true
     });
+    renderer.shadowMap.enabled = true;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor("#fff")
-
-    // Append the canvas element created by the renderer to document body element.
     document.body.appendChild(renderer.domElement);
-
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -118,13 +116,28 @@
     var effect = new THREE.VREffect(renderer);
     effect.setSize(window.innerWidth, window.innerHeight);
 
-    var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    var material = new THREE.MeshLambertMaterial()
-        // material.color.setRGB(1, 0.6, 0);
-    var cube = new THREE.Mesh(geometry, material);
+    var geometry = new THREE.PlaneGeometry(20,20)
+    var material = new THREE.MeshBasicMaterial({
+        // map: texture,
+        color: 0xff0000
+    });
+    var plane = new THREE.Mesh(geometry,material);
+    plane.receiveShadow = true;
+    scene.add(plane);
 
-    cube.position.set(0, controls.userHeight, -1);
-    scene.add(cube);
+    const cubes = [];
+    const count = 6
+    for (var i = 0; i < count; i++) {
+      const theta = Math.PI*2/count*i;
+      const r = 3
+      const z = Math.cos(theta)*r;
+      const x = Math.sin(theta)*r;
+      const cube = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshLambertMaterial({color:0xc6c6c6}));
+      cube.position.set(x, controls.userHeight, z);
+      cube.castShadow = true;
+      scene.add(cube);
+      cubes.push(cube);
+    }
 
     // font
     var textMesh;
@@ -150,25 +163,24 @@
                 color: 0x00ff00
             });
             textMesh = new THREE.Mesh(geometry, material);
-            textMesh.position.set(0, controls.userHeight, -0.5);
+            textMesh.position.set(0, controls.userHeight, -1);
             scene.add(textMesh);
         }
     }
     var loader = new THREE.FontLoader();
     loader.load('node_modules/three/examples/fonts/gentilis_regular.typeface.json', function(response) {
         font = response;
-        showText("testste")
+        showText("MilboxTouch")
     });
 
 
 
 
     //add light.
-    var light = new THREE.DirectionalLight(0xffffff, 1.6);
+    var light = new THREE.DirectionalLight(0xf0f0f0,1.5);
+    light.castShadow = true;
     light.position.set(0, 100, 30);
     scene.add(light);
-    // var light1 = new THREE.AmbientLight(0xffffff);
-    // scene.add(light1);
 
 
     //init mbt.
@@ -178,90 +190,66 @@
         console.log("setup finishd!");
         showText("complete!")
     }, () => {
-        //
+        // called when setup is progressing.
         const ms = new Date().getMilliseconds();
         showText("Progress:" + ms);
     });
 
     // register event handlers.
     mbt.addListener("tap", () => {
-        console.log("tap!");
+      // <here is hendling scrit.>
         showText("Tap");
 
-        const vLocal =new THREE.Vector3(0,0,-1);
-        const vWorld = vLocal.applyMatrix4(camera.matrixWorld);
-        const dir = vWorld.sub(camera.position).normalize(); // camera direction
+        var obj = cameraRaycast();
 
-        // 始点, 向きベクトルを渡してレイを作成
-        var ray = new THREE.Raycaster(camera.position, dir);
-
-        // クリック判定
-        var obj = ray.intersectObjects([cube]);
-
-        // クリックしていたら、alertを表示
-        if (obj.length > 0) {
-
-            console.log("click!!")
-            showText("Hit!")
-            const color = cube.material.color
-            cube.material.color.setRGB(0, 1, 1);
+        if (obj.length > 0) {//change color!
+            var cube = obj[0].object;
+            const r = cube.material.color.r;
+            const g = cube.material.color.g;
+            const b = cube.material.color.b;
+            cube.material.color.setRGB(1, 0, 0);
             window.setTimeout(()=>{
-              cube.material.color.setRGB(color.r, color.g, color.b);
+              cube.material.color.setRGB(r, g, b);
             },1000)
         }
     });
     mbt.addListener("doubletap", () => {
             showText("doubletap")
+            var obj = cameraRaycast();
+            if (obj.length > 0) {// scale change!
+                var cube = obj[0].object;
+                cube.geometry.scale(2,2,2);
+                window.setTimeout(()=>{
+                  cube.geometry.scale(0.5,0.5,0.5);
+                },1000)
+            }
         })
     mbt.addListener("swipe",(speed,direction)=>{
-      showText("swipe! speed: "+speed+", dir: "+direction)
+      showText("swipe! speed: "+Math.round(speed)+", dir: "+direction)
     });
     mbt.addListener("scrollBegan",()=>{
       showText("scBegan")
     });
     mbt.addListener("scroll",(delta)=>{
-      // showText("scroll delta: "+ delta);
+      cubesRotation(delta);
     });
     mbt.addListener("scrollEnd",()=>{
       showText("scEnded")
     });
-    // mbt.addListener("",()=>{
-    //
-    // });
-    // mbt.addListener("",()=>{
-    //
-    // });
-    // mbt.addListener("",()=>{
-    //
-    // });
 
 
     // Add a repeating grid as a skybox.
     var boxSize = 5;
     var loader = new THREE.TextureLoader();
-    loader.load('img/box.png', onTextureLoaded);
-
-    function onTextureLoaded(texture) {
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(boxSize, boxSize);
-
-        var geometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize);
-        var material = new THREE.MeshBasicMaterial({
-            map: texture,
-            color: 0x01BE00,
-            side: THREE.BackSide
+    loader.load('img/checker.png', (texture) => {
+        var material = new THREE.MeshLambertMaterial({
+            map: texture
         });
-
-        // Align the skybox to the floor (which is at y=0).
-        skybox = new THREE.Mesh(geometry, material);
-        skybox.position.y = boxSize / 2;
-        // scene.add(skybox);
-
-        // For high end VR devices like Vive and Oculus, take into account the stage
-        // parameters provided.
-        setupStage();
-    }
+        plane.material = material;
+        plane.position.y = 0;
+        plane.position.z = -3;
+        plane.rotation.x = -1*Math.PI/2;
+    });
 
 
     // Create a VR manager helper to enter and exit VR mode.
@@ -280,13 +268,31 @@
 
     // Request animation frame loop function
     var lastRender = 0;
-
+    var lookingCube = null;
     function animate(timestamp) {
         var delta = Math.min(timestamp - lastRender, 500);
         lastRender = timestamp;
 
         // Apply rotation to cube mesh
-        cube.rotation.y += delta * 0.0006;
+        cubes.forEach((cube)=>{
+          cube.rotation.y += delta * 0.0006;
+        })
+
+        var obj = cameraRaycast();
+
+        if (obj.length > 0) {
+            var cube = obj[0].object;
+            if(!lookingCube){
+              lookingCube = cube;
+              lookingCube.material.color.setRGB(0,1,0);
+            }
+        }else{
+          if(lookingCube){
+            lookingCube.material.color.setRGB(1, 1, 1);
+            lookingCube=null;
+          }
+        }
+
 
         // Update VR headset position and apply to camera.
         controls.update();
@@ -303,36 +309,28 @@
         camera.updateProjectionMatrix();
     }
 
-    var display;
+    //目線上のcubeを取得する
+    function cameraRaycast(){
+      const vLocal =new THREE.Vector3(0,0,-1);
+      const vWorld = vLocal.applyMatrix4(camera.matrixWorld);
+      const dir = vWorld.sub(camera.position).normalize(); // camera direction
 
-    // Get the HMD, and if we're dealing with something that specifies
-    // stageParameters, rearrange the scene.
-    function setupStage() {
-        navigator.getVRDisplays().then(function(displays) {
-            if (displays.length > 0) {
-                display = displays[0];
-                if (display.stageParameters) {
-                    setStageDimensions(display.stageParameters);
-                }
-            }
-        });
+      // if cube hit camera raycast,change color.
+      var ray = new THREE.Raycaster(camera.position, dir);
+      return ray.intersectObjects(cubes);
     }
-
-    function setStageDimensions(stage) {
-        // Make the skybox fit the stage.
-        var material = skybox.material;
-        scene.remove(skybox);
-
-        // Size the skybox according to the size of the actual stage.
-        var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
-        skybox = new THREE.Mesh(geometry, material);
-
-        // Place it on the floor.
-        skybox.position.y = boxSize / 2;
-        scene.add(skybox);
-
-        // Place the cube in the middle of the scene, at user height.
-        cube.position.set(0, controls.userHeight, 0);
+    // cubesを回転させる
+    var cubesRotationDeg = 0;
+    function cubesRotation(degree){
+      cubesRotationDeg += degree/100;
+      for (var i = 0; i < count; i++) {
+        const cube = cubes[i];
+        const theta = Math.PI*2/count*i + cubesRotationDeg;
+        const r = 3
+        const z = Math.cos(theta)*r;
+        const x = Math.sin(theta)*r;
+        cube.position.set(x, controls.userHeight, z);
+      }
     }
 </script>
 

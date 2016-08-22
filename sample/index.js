@@ -149,17 +149,19 @@ var AngleBlock = {
   LowerLeft: 2
 };
 var SwipeDirection = {
-  Right: 0,
-  Left: 1,
-  Up: 2,
-  Down: 3
+  Right: "right",
+  Left: "left",
+  Up: "up",
+  Down: "down"
 };
+
 function checkAngleBlock(angle) {
-  if (0 <= angle && angle < 90) {
+  var degree = angle.degree;
+  if (0 <= degree && degree < 90) {
     return AngleBlock.UpperRight;
-  } else if (90 <= angle && angle < 180) {
+  } else if (90 <= degree && degree < 180) {
     return AngleBlock.UpperLeft;
-  } else if (180 <= angle && angle < 270) {
+  } else if (180 <= degree && degree < 270) {
     return AngleBlock.LowerLeft;
   }
   return AngleBlock.LowerRight;
@@ -168,7 +170,7 @@ function checkAngleBlock(angle) {
 function Swipe(startAnglePosition, endAnglePosition, timeDuration) {
 
   this.getSpeed = function () {
-    return Math.abs(endAnglePosition.sub(startAnglePosition).range) / timeDuration;
+    return Math.abs(endAnglePosition.sub(startAnglePosition).range()) / timeDuration;
   };
   this.getDirection = function () {
     var s = checkAngleBlock(startAnglePosition);
@@ -312,13 +314,23 @@ function DetectState(mbt, option, invoke) {
   };
 }
 
+var _ua = function (u) {
+  return {
+    Tablet: u.indexOf("windows") != -1 && u.indexOf("touch") != -1 && u.indexOf("tablet pc") == -1 || u.indexOf("ipad") != -1 || u.indexOf("android") != -1 && u.indexOf("mobile") == -1 || u.indexOf("firefox") != -1 && u.indexOf("tablet") != -1 || u.indexOf("kindle") != -1 || u.indexOf("silk") != -1 || u.indexOf("playbook") != -1,
+    Mobile: u.indexOf("windows") != -1 && u.indexOf("phone") != -1 || u.indexOf("iphone") != -1 || u.indexOf("ipod") != -1 || u.indexOf("android") != -1 && u.indexOf("mobile") != -1 || u.indexOf("firefox") != -1 && u.indexOf("mobile") != -1 || u.indexOf("blackberry") != -1
+  };
+}(window.navigator.userAgent.toLowerCase());
+
 function MBT(option, target) {
   var _this3 = this;
 
   this.option = option;
   this.target = target;
 
-  this._eventListeners = { Tap: [], DoubleTap: [] }; // eventName:callback array dictionary.
+  this._eventListeners = {
+    Tap: [],
+    DoubleTap: []
+  }; // eventName:callback array dictionary.
 
   this.addListener = function (eventName, callback) {
     if (!_this3._eventListeners[eventName]) {
@@ -379,44 +391,42 @@ function MBT(option, target) {
 
   //detection click event
   var tapFlag = false;
-  this.target.addEventListener("touchstart", function (e) {
-    // var x = e.pageX ;
-    var x = e.changedTouches[0].pageX;
-    tapFlag = true;
-    _state.mousedown(x);
-  });
-  this.target.addEventListener("mousedown", function (e) {
-    tapFlag = true;
-    var x = e.pageX;
-    _state.mousedown(x);
-  });
-
-  this.target.addEventListener("touchend", function (e) {
-    // console.log("mouseup");
-    // invoke("test",["mouseup"]);
-    _state.mouseup(e.changedTouches[0].pageX);
-    tapFlag = false;
-  });
-  this.target.addEventListener("mouseup", function (e) {
-    tapFlag = false;
-    _state.mouseup(e.pageX);
-  });
-
-  this.target.addEventListener("touchmove", function (e) {
-    if (!tapFlag) {
-      return;
-    }
-    var x = e.changedTouches[0].pageX;
-    // invoke("test",["mousemove"]);
-    _state.mousemove(x);
-  });
-  this.target.addEventListener("mousemove", function (e) {
-    if (!tapFlag) {
-      return;
-    }
-    var x = e.pageX;
-    // invoke("test",["mousemove"]);
-    _state.mousemove(x);
-  });
+  if (_ua.Mobile) {
+    console.log("agent is mobile");
+    this.target.addEventListener("touchstart", function (e) {
+      // var x = e.pageX ;
+      var x = e.changedTouches[0].pageX;
+      tapFlag = true;
+      _state.mousedown(x);
+    });
+    this.target.addEventListener("touchmove", function (e) {
+      if (!tapFlag) {
+        return;
+      }
+      var x = e.changedTouches[0].pageX;
+      _state.mousemove(x);
+    });
+    this.target.addEventListener("touchend", function (e) {
+      _state.mouseup(e.changedTouches[0].pageX);
+      tapFlag = false;
+    });
+  } else {
+    console.log("agent is not mobile");
+    this.target.addEventListener("mousedown", function (e) {
+      tapFlag = true;
+      var x = e.pageX;
+      _state.mousedown(x);
+    });
+    this.target.addEventListener("mouseup", function (e) {
+      tapFlag = false;
+      _state.mouseup(e.pageX);
+    });
+    this.target.addEventListener("mousemove", function (e) {
+      if (!tapFlag) {
+        return;
+      }
+      _state.mousemove(e.pageX);
+    });
+  }
 }
 window.MilboxTouch = MBT;
