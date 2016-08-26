@@ -227,13 +227,13 @@
     mbt.addListener("swipe",(speed,direction)=>{
       showText("swipe! speed: "+Math.round(speed)+", dir: "+direction)
     });
-    mbt.addListener("scrollBegan",()=>{
+    mbt.addListener("scrollbegan",()=>{
       showText("scBegan")
     });
     mbt.addListener("scroll",(delta)=>{
       cubesRotation(delta);
     });
-    mbt.addListener("scrollEnd",()=>{
+    mbt.addListener("scrollend",()=>{
       showText("scEnded")
     });
 

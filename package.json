@@ -1,5 +1,5 @@
 {
-  "name": "milbox-web",
+  "name": "milboxtouch",
   "version": "0.0.1",
   "description": "",
   "main": "lib/index.js",
@@ -8,7 +8,7 @@
     "babel": "babel ./lib/index.es2016.js --presets es2015,stage-2 --plugins transform-runtime --out-file ./lib/index.js",
     "postbuild": "uglifyjs ./lib/index.js -o ./lib/index.min.js -c",
     "server": "hs ./",
-    "copy": "cp -f ./lib/index.js ./sample/index.js"
+    "copy": "cp -f ./lib/index.js ./sample/mbt.js"
   },
   "author": "",
   "license": "MIT",

@@ -71,10 +71,10 @@ function MBT(option, target) {
       console.log("completeCallback");
       this.leftLimit = leftLimit;
       this.rightLimit = rightLimit;
-      _state = new DetectState(this, {}, invoke);
+      _state = new DetectState(this, option, invoke);
       doneCallback();
     };
-    _state = new SetupState(this, {}, completeCallback, progressCallback);
+    _state = new SetupState(this, option, completeCallback, progressCallback);
   }
 
   // logic
