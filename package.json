@@ -7,8 +7,8 @@
     "build": "babel-node ./build.js --presets es2015,stage-2 --plugins transform-runtime && npm run babel && npm run copy",
     "babel": "babel ./lib/index.es2016.js --presets es2015,stage-2 --plugins transform-runtime --out-file ./lib/index.js",
     "postbuild": "uglifyjs ./lib/index.js -o ./lib/index.min.js -c",
-    "server": "hs ./",
-    "copy": "cp -f ./lib/index.js ./sample/mbt.js"
+    "server": "hs ./sample",
+    "copy": "cp -f ./lib/index.js ./sample/index.js"
   },
   "author": "",
   "license": "MIT",

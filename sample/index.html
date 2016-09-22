@@ -185,18 +185,18 @@
 
     //init mbt.
     var mbt = new MBT(null, renderer.domElement);
-    mbt.setup(() => {
+    mbt.setup(function() {
         // called back when setup has completed.
         console.log("setup finishd!");
         showText("complete!")
-    }, () => {
+    }, function(){
         // called when setup is progressing.
         const ms = new Date().getMilliseconds();
         showText("Progress:" + ms);
     });
 
     // register event handlers.
-    mbt.addListener("tap", () => {
+    mbt.addListener("tap",function(){
       // <here is hendling scrit.>
         showText("Tap");
 
@@ -208,32 +208,32 @@
             const g = cube.material.color.g;
             const b = cube.material.color.b;
             cube.material.color.setRGB(1, 0, 0);
-            window.setTimeout(()=>{
+            window.setTimeout(function(){
               cube.material.color.setRGB(r, g, b);
             },1000)
         }
     });
-    mbt.addListener("doubletap", () => {
+    mbt.addListener("doubletap", function() {
             showText("doubletap")
             var obj = cameraRaycast();
             if (obj.length > 0) {// scale change!
                 var cube = obj[0].object;
                 cube.geometry.scale(2,2,2);
-                window.setTimeout(()=>{
+                window.setTimeout(function(){
                   cube.geometry.scale(0.5,0.5,0.5);
                 },1000)
             }
         })
-    mbt.addListener("swipe",(speed,direction)=>{
+    mbt.addListener("swipe",function(speed,direction){
       showText("swipe! speed: "+Math.round(speed)+", dir: "+direction)
     });
-    mbt.addListener("scrollbegan",()=>{
+    mbt.addListener("scrollbegan",function(){
       showText("scBegan")
     });
-    mbt.addListener("scroll",(delta)=>{
+    mbt.addListener("scroll",function(delta){
       cubesRotation(delta);
     });
-    mbt.addListener("scrollend",()=>{
+    mbt.addListener("scrollend",function(){
       showText("scEnded")
     });
 
@@ -241,7 +241,7 @@
     // Add a repeating grid as a skybox.
     var boxSize = 5;
     var loader = new THREE.TextureLoader();
-    loader.load('img/checker.png', (texture) => {
+    loader.load('img/checker.png', function(texture) {
         var material = new THREE.MeshLambertMaterial({
             map: texture
         });
@@ -274,7 +274,7 @@
         lastRender = timestamp;
 
         // Apply rotation to cube mesh
-        cubes.forEach((cube)=>{
+        cubes.forEach(function(cube){
           cube.rotation.y += delta * 0.0006;
         })
 
