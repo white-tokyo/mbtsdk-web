@@ -8,7 +8,8 @@
     "babel": "babel ./lib/index.es2016.js --presets es2015,stage-2 --plugins transform-runtime --out-file ./lib/index.js",
     "postbuild": "uglifyjs ./lib/index.js -o ./lib/index.min.js -c",
     "server": "hs ./sample",
-    "copy": "cp -f ./lib/index.js ./sample/index.js"
+    "copy": "cp -f ./lib/index.js ./sample/index.js",
+    "watch": "watch 'npm run build' ./src"
   },
   "author": "",
   "license": "MIT",
@@ -24,5 +25,8 @@
     "rollup-plugin-sourcemaps": "^0.3.6",
     "uglify-js": "^2.7.1",
     "watch": "^0.19.2"
+  },
+  "dependencies": {
+    "rx": "^4.1.0"
   }
 }
