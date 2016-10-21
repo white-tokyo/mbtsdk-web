@@ -5,7 +5,7 @@
 <head>
     <title>MilboxTouch-sample</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+    <meta name="viewport" content="initial-scale=1.0, width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no, minimal-ui">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -126,9 +126,9 @@
     scene.add(plane);
 
     const cubes = [];
-    const count = 6
-    for (var i = 0; i < count; i++) {
-      const theta = Math.PI*2/count*i;
+    const ccount = 6;
+    for (var i = 0; i < ccount; i++) {
+      const theta = Math.PI*2/ccount*i;
       const r = 3
       const z = Math.cos(theta)*r;
       const x = Math.sin(theta)*r;
@@ -144,6 +144,7 @@
     var font;
 
     function showText(text) {
+      console.log(text);
         var geometry = new THREE.TextGeometry(text, {
             size: 0.1,
             height: 0.001,
@@ -184,17 +185,15 @@
 
 
     //init mbt.
-    var mbt = new MBT(null, renderer.domElement);
-    mbt.setup(function() {
-        // called back when setup has completed.
-        console.log("setup finishd!");
-        showText("complete!")
-    }, function(){
-        // called when setup is progressing.
-        const ms = new Date().getMilliseconds();
-        showText("Progress:" + ms);
+    var mbt = new MilboxTouch(null, renderer.domElement);
+    mbt.addListener("setupcompleted",function(){
+      showText("setup complete!")
     });
 
+    mbt.addListener("setupprogress",function(){
+      const ms = new Date().getMilliseconds();
+      showText("Progress:" + ms);
+    })
     // register event handlers.
     mbt.addListener("tap",function(){
       // <here is hendling scrit.>
@@ -231,11 +230,14 @@
       showText("scBegan")
     });
     mbt.addListener("scroll",function(delta){
+      console.log("scroll: "+delta);
       cubesRotation(delta);
     });
-    mbt.addListener("scrollend",function(){
+    mbt.addListener("scrollended",function(){
       showText("scEnded")
     });
+
+    mbt.setup();
 
 
     // Add a repeating grid as a skybox.
@@ -323,9 +325,9 @@
     var cubesRotationDeg = 0;
     function cubesRotation(degree){
       cubesRotationDeg += degree/100;
-      for (var i = 0; i < count; i++) {
+      for (var i = 0; i < ccount; i++) {
         const cube = cubes[i];
-        const theta = Math.PI*2/count*i + cubesRotationDeg;
+        const theta = Math.PI*2/ccount*i + cubesRotationDeg;
         const r = 3
         const z = Math.cos(theta)*r;
         const x = Math.sin(theta)*r;

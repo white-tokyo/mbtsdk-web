@@ -24,42 +24,41 @@ function checkAngleBlock(angle) {
 }
 
 function Swipe(startAnglePosition, endAnglePosition, timeDuration) {
-
-  this.getSpeed = function() {
-    return Math.abs(endAnglePosition.sub(startAnglePosition).range()) / timeDuration;
+  this.getSpeed = function () {
+    return Math.abs(endAnglePosition.sub(startAnglePosition).abs()) / timeDuration * 1000;
   }
-  this.getDirection = function() {
-    const s = checkAngleBlock(startAnglePosition);
-    const e = checkAngleBlock(endAnglePosition);
+  this.getDirection = function () {
+    const s = startAnglePosition.angleBlock;
+    const e = endAnglePosition.angleBlock;
     switch (s) {
-      case AngleBlock.UpperLeft:
-        if (e == AngleBlock.UpperRight) {
-          return SwipeDirection.Right;
-        } else if (e == AngleBlock.LowerLeft) {
-          return SwipeDirection.Down;
-        }
-        break;
-      case AngleBlock.UpperRight:
-        if (e == AngleBlock.UpperLeft) {
-          return SwipeDirection.Left;
-        } else if (e == AngleBlock.LowerRight) {
-          return SwipeDirection.Down;
-        }
-        break;
-      case AngleBlock.LowerLeft:
-        if (e == AngleBlock.UpperLeft) {
-          return SwipeDirection.Up;
-        } else if (e == AngleBlock.LowerRight) {
-          return SwipeDirection.Right;
-        }
-        break;
-      case AngleBlock.LowerRight:
-        if (e == AngleBlock.UpperRight) {
-          return SwipeDirection.Up;
-        } else if (e == AngleBlock.LowerLeft) {
-          return SwipeDirection.Left;
-        }
-        break;
+    case "UpperLeft":
+      if (e == "UpperRight") {
+        return SwipeDirection.Right;
+      } else if (e == "LowerLeft") {
+        return SwipeDirection.Down;
+      }
+      break;
+    case "UpperRight":
+      if (e == "UpperLeft") {
+        return SwipeDirection.Left;
+      } else if (e == "LowerRight") {
+        return SwipeDirection.Down;
+      }
+      break;
+    case "LowerLeft":
+      if (e == "UpperLeft") {
+        return SwipeDirection.Up;
+      } else if (e == "LowerRight") {
+        return SwipeDirection.Right;
+      }
+      break;
+    case "LowerRight":
+      if (e == "UpperRight") {
+        return SwipeDirection.Up;
+      } else if (e == "LowerLeft") {
+        return SwipeDirection.Left;
+      }
+      break;
     }
     return startAnglePosition > endAnglePosition ? SwipeDirection.Right : SwipeDirection.Left;
   }
