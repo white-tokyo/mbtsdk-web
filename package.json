@@ -1,15 +1,15 @@
 {
   "name": "milboxtouch",
-  "version": "0.0.1",
-  "description": "",
-  "main": "lib/index.js",
+  "version": "0.0.3",
+  "description": "sdk for milbox-touch.",
+  "main": "lib/index.browser.js",
   "scripts": {
-    "build": "babel-node ./build.js --presets es2015,stage-2 --plugins transform-runtime && npm run babel && npm run browserify && npm run copy",
+    "build": "babel-node ./build.js --presets es2015,stage-2 --plugins transform-runtime && npm run babel && npm run browserify",
     "babel": "babel ./lib/index.es2016.js --presets es2015,stage-2 --plugins transform-runtime --out-file ./lib/index.js",
-    "postbuild": "uglifyjs ./lib/index.js -o ./lib/index.min.js -c",
-    "browserify": "browserify ./lib/index.js -o ./lib/index2.js",
+    "postbuild": "uglifyjs ./lib/index.browser.js -o ./lib/index.min.js -c && npm run copy",
+    "browserify": "browserify ./lib/index.js -o ./lib/index.browser.js",
     "server": "hs ./sample",
-    "copy": "cp -f ./lib/index2.js ./sample/index.js",
+    "copy": "cp -f ./lib/index.min.js ./sample/index.js",
     "watch": "watch 'npm run build' ./src"
   },
   "author": "",
@@ -20,15 +20,19 @@
     "babel-preset-es2015": "^6.13.2",
     "babel-preset-stage-2": "^6.13.0",
     "browserify": "^13.1.0",
-    "http-server": "^0.9.0",
-    "rollup": "^0.34.9",
     "rollup-plugin-commonjs": "^3.3.1",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-sourcemaps": "^0.3.6",
+    "http-server": "^0.9.0",
+    "rollup": "^0.34.9",
     "uglify-js": "^2.7.1",
-    "watch": "^0.19.2"
+    "watch": "^1.0.0"
   },
   "dependencies": {
     "rx": "^4.1.0"
+  },
+  "repository" :{
+    "type" : "git",
+    "url" : "https://github.com/white-tokyo/mbtsdk-web"
   }
 }
